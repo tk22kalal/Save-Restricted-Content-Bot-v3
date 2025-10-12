@@ -12,20 +12,26 @@ from config import P0
 @app.on_message(f.command("pay") & f.private)
 async def p(c, m):
     kb = M([
-        [B("⭐ Daily - 1 Star", callback_data="p_d")],
-        [B("⭐ Weekly - 3 Stars", callback_data="p_w")],
-        [B("⭐ Monthly - 5 Stars", callback_data="p_m")]
+        [
+            B(f"⭐ {P0['d']['l']} - {P0['d']['s']} Star", callback_data="p_d")
+        ],
+        [
+            B(f"⭐ {P0['w']['l']} - {P0['w']['s']} Stars", callback_data="p_w")
+        ],
+        [
+            B(f"⭐ {P0['m']['l']} - {P0['m']['s']} Stars", callback_data="p_m")
+        ]
     ])
-    await m.reply_text(
-        "💎 **Premium Plans**\n\n"
-        "Choose your subscription:\n"
-        "🔹 Daily: 1 Star (24h)\n"
-        "🔹 Weekly: 3 Stars (7d)\n"
-        "🔹 Monthly: 5 Stars (30d)\n\n"
-        "Pay using Telegram Stars ⭐",
-        reply_markup=kb
+    
+    txt = (
+        "💎 **Choose your premium plan:**\n\n"
+        f"📅 **{P0['d']['l']}** — {P0['d']['s']} Star\n"
+        f"🗓️ **{P0['w']['l']}** — {P0['w']['s']} Stars\n"
+        f"📆 **{P0['m']['l']}** — {P0['m']['s']} Stars\n\n"
+        "Select a plan below to continue ⤵️"
     )
-
+    await m.reply_text(txt, reply_markup=kb)
+    
 @app.on_callback_query(f.regex("^p_"))
 async def i(c, q):
     pl = q.data.split("_")[1]
@@ -74,3 +80,4 @@ async def sp(c, m):
             await c.send_message(o,
                 f"⚠️ Issue!\nUser {u}\nPlan {pi['l']}\nTxn {p.telegram_payment_charge_id}\nErr {r}"
             )
+
