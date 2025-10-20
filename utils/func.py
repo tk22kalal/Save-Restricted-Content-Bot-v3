@@ -194,8 +194,9 @@ async def process_text_with_rules(user_id, text):
         delete_words = await get_user_data_key(user_id, "delete_words", [])
         
         processed_text = text
-        for word, replacement in replacements.items():
-            processed_text = processed_text.replace(word, replacement)
+        if replacements and isinstance(replacements, dict):
+            for word, replacement in replacements.items():
+                processed_text = processed_text.replace(word, replacement)
         
         if delete_words:
             words = processed_text.split()
