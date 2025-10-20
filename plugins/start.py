@@ -9,24 +9,35 @@ from pyrogram.types import BotCommand, InlineKeyboardButton, InlineKeyboardMarku
 from config import LOG_GROUP, OWNER_ID, FORCE_SUB
 
 async def subscribe(app, message):
-    if FORCE_SUB:
+    if not FORCE_SUB or FORCE_SUB == 0:
+        return 0
+    
+    if not message.from_user:
+        return 1
+        
+    try:
+        user = await app.get_chat_member(FORCE_SUB, message.from_user.id)
+        if str(user.status) == "ChatMemberStatus.BANNED":
+            await message.reply_text("You are Banned. Contact -- Team SPY")
+            return 1
+    except UserNotParticipant:
         try:
-          user = await app.get_chat_member(FORCE_SUB, message.from_user.id)
-          if str(user.status) == "ChatMemberStatus.BANNED":
-              await message.reply_text("You are Banned. Contact -- Team SPY")
-              return 1
-        except UserNotParticipant:
             link = await app.export_chat_invite_link(FORCE_SUB)
             caption = f"Join our channel to use the bot"
             await message.reply_photo(photo="https://graph.org/file/d44f024a08ded19452152.jpg",caption=caption, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("Join Now...", url=f"{link}")]]))
             return 1
-        except Exception as ggn:
-            await message.reply_text(f"Something Went Wrong. Contact admins... with following message {ggn}")
-            return 1 
+        except Exception:
+            await message.reply_text("Please join the required channel to use this bot.")
+            return 1
+    except Exception as ggn:
+        print(f"Error in subscribe check: {ggn}")
+        return 0
+    
+    return 0
      
 @app.on_message(filters.command("set"))
 async def set(_, message):
-    if message.from_user.id not in OWNER_ID:
+    if not message.from_user or message.from_user.id not in OWNER_ID:
         await message.reply("You are not authorized to use this command.")
         return
      
